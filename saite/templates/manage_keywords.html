@@ -1,0 +1,108 @@
+{% extends "headerfooter.html" %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление ключевыми словами</title>
+    <link rel="stylesheet" href="{% static 'css/stylekeywords.css' %}">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const keywordList = document.getElementById('keyword-list');
+            const keywordInput = document.getElementById('keyword-input');
+            const addKeywordBtn = document.getElementById('add-keyword-btn');
+            const keywordsField = document.getElementById('id_keywords');
+            const existingKeywords = "{{ keywords|escapejs }}".split(',');
+
+            existingKeywords.forEach(keyword => {
+                if (keyword.trim()) {
+                    addKeywordToList(keyword.trim());
+                }
+            });
+
+            addKeywordBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const keyword = keywordInput.value.trim();
+                if (keyword) {
+                    addKeywordToList(keyword);
+                    keywordInput.value = '';
+                }
+            });
+
+            function addKeywordToList(keyword) {
+                const li = document.createElement('li');
+                li.textContent = formatKeyword(keyword);
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = '×';
+                removeBtn.classList.add('remove-btn');
+                removeBtn.addEventListener('click', function() {
+                    li.remove();
+                    updateKeywordsField();
+                });
+                li.appendChild(removeBtn);
+                keywordList.appendChild(li);
+                updateKeywordsField();
+            }
+
+            function formatKeyword(keyword) {
+                return keyword.length > 20 ? keyword.substring(0, 20) + '...' : keyword;
+            }
+
+            function updateKeywordsField() {
+                const keywords = Array.from(keywordList.children).map(li => li.firstChild.textContent.replace('...', ''));
+                keywordsField.value = keywords.join(',');
+            }
+
+            // Показать загрузочный индикатор при отправке формы
+            document.querySelector('form').addEventListener('submit', function() {
+                document.getElementById('loader').style.visibility = 'visible';
+            });
+        });
+    </script>
+</head>
+<body>
+    <main>
+    <div class="outer-container">
+        <div class="container">
+            <h1>Настройки</h1>
+            <div class="settings-form">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="id_city"><img src="{% static 'images/manage_keywords/city_icon.svg' %}" alt="City Icon" class="city-icon">Выбери свой город</label>
+                        {{ form.city }}
+                    </div>
+                    <div class="form-group">
+                        <label for="keyword-input"><img src="{% static 'images/manage_keywords/keywords_icon.svg' %}" alt="Keywords Icon" class="keywords-icon">Ключевые слова</label>
+                        <div class="keyword-input-container">
+                            <input type="text" id="keyword-input" placeholder="Введите ключевое слово">
+                            <button id="add-keyword-btn">+</button>
+                        </div>
+                        <ul id="keyword-list"></ul>
+                        {{ form.keywords }}
+                    </div>
+                    <button type="submit" class="save-button">Сохранить</button>
+                </form>
+                <div class="note">
+                    <h2>Памятка</h2>
+                    <ul>
+                        <li>Не добавляйте длинные бессмысленные слова</li>
+                        <li>При добавлении 1 слова не вводить два слова</li>
+                        <li>Не забывайте нажать кнопку сохранить</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="loader" class="loader">
+        <div class="loader-content">
+            <img src="{% static 'images/main/load.gif' %}" alt="Loading" />
+        </div>
+    </div>
+    </main>
+<script src="{% static 'js/jsloader.js' %}"></script>
+</body>
+</html>
+{% endblock %}
