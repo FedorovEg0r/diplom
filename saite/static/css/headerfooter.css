@@ -3,8 +3,8 @@
     --font-size-base-max: 18px;
     --screen-width-min: 320px;
     --screen-width-max: 1920px;
-    --logo-size-min: 60px; /* Минимальный размер логотипа */
-    --logo-size-max: 100px; /* Максимальный размер логотипа */
+    --logo-size-min: 60px;
+    --logo-size-max: 100px;
 }
 
 html, body {
@@ -26,6 +26,7 @@ header {
     box-shadow: 0 2px 4px 0 rgba(0,0,0,.2);
     transition: box-shadow 0.3s ease-in-out;
 }
+
 header.shadow {
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
@@ -38,13 +39,12 @@ header.shadow {
 }
 
 .logo {
-    /* Адаптивное изменение размера логотипа */
     width: calc(var(--logo-size-min) + (var(--logo-size-max) - var(--logo-size-min)) * ((100vw - var(--screen-width-min)) / (var(--screen-width-max) - var(--screen-width-min))));
-    height: auto; /* Сохраняем пропорции логотипа */
+    height: auto;
 }
 
 .custom-button:hover {
-    background-color: #124f70; /* Темно-синий цвет при наведении */
+    background-color: #124f70;
 }
 
 .icon-container {
@@ -56,22 +56,21 @@ header.shadow {
 .divider {
     width: 1px;
     height: 24px;
-    background-color: #7F7F7F; /* Серый цвет линии */
-    margin: 0 12px; /* Отступы вокруг линии */
+    background-color: #7F7F7F;
+    margin: 0 12px;
 }
 @media (max-width: 768px) {
     .logo {
-        width: var(--logo-size-min); /* Фиксированный минимальный размер для мобильных устройств */
+        width: var(--logo-size-min);
     }
 }
 
 @media (min-width: 1920px) {
     .logo {
-        width: var(--logo-size-max); /* Фиксированный максимальный размер для больших экранов */
+        width: var(--logo-size-max);
     }
 
 }
-
 
 .navbar {
     display: flex;
@@ -80,7 +79,6 @@ header.shadow {
     width: 80%;
     margin: 0 auto;
     padding: 10px 20px;
-
     color: #fff;
     position: relative;
 }
@@ -120,6 +118,7 @@ header.shadow {
     display: flex;
     align-items: center;
     color: #fff;
+    transition: background-color 0.3s;
     text-decoration: none;
     background-color: #007BFF;
     padding: 5px 10px;
@@ -149,7 +148,6 @@ header.shadow {
     margin: 3px 0;
 }
 
-/* Адаптивные стили */
 @media (max-width: 768px) {
     .nav-list {
         display: none;
@@ -159,7 +157,7 @@ header.shadow {
         text-align: center;
         background-color: #333;
         position: absolute;
-        top: 60px; /* Высота header'а */
+        top: 60px;
         left: 0;
         right: 0;
     }
@@ -192,13 +190,10 @@ header.shadow {
     }
 }
 
-/* Дополнительные стили для активного состояния бургер-меню */
 .navbar .burger-button.active + .nav-list {
     display: flex;
 }
 
-
-/* Стили для футера */
 footer {
     background-color: #e9ecef;
     padding-top: 20px;
