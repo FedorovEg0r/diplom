@@ -26,112 +26,9 @@ body {
 }
 
 /* Стили шапки */
-header {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    background: rgba(38, 38, 38, 1);
-    box-shadow: 0 2px 4px 0 rgba(0,0,0,.2);
-    transition: box-shadow 0.3s ease-in-out;
-}
-header.shadow {
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
 
-.logo-container {
-    display: flex;
-    align-items: center;
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
 
-.logo {
-    /* Адаптивное изменение размера логотипа */
-    width: calc(var(--logo-size-min) + (var(--logo-size-max) - var(--logo-size-min)) * ((100vw - var(--screen-width-min)) / (var(--screen-width-max) - var(--screen-width-min))));
-    height: auto; /* Сохраняем пропорции логотипа */
-}
 
-.custom-button:hover {
-    background-color: #124f70; /* Темно-синий цвет при наведении */
-}
-
-.icon-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.divider {
-    width: 1px;
-    height: 24px;
-    background-color: #7F7F7F; /* Серый цвет линии */
-    margin: 0 12px; /* Отступы вокруг линии */
-}
-@media (max-width: 768px) {
-    .logo {
-        width: var(--logo-size-min); /* Фиксированный минимальный размер для мобильных устройств */
-    }
-}
-
-@media (min-width: 1920px) {
-    .logo {
-        width: var(--logo-size-max); /* Фиксированный максимальный размер для больших экранов */
-    }
-
-}
-
-.navbar {
-    display: flex;
-    justify-content: start;
-    align-items: center;
-    padding-left: 15%;
-}
-
-.text-button {
-    background: none;
-    border: none;
-    font-family: 'Jost', sans-serif;
-    font-size: 1rem; /* Замените на ваш размер шрифта */
-    color: #ffffff; /* Замените на ваш цвет */
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.text-button:hover {
-    /* Стили для состояния наведения */
-}
-.nav-list {
-    list-style: none;
-    display: flex;
-    align-items: center;
-    padding-left: 0;
-    margin-left: 15%;
-}
-.nav-list li {
-    margin: 0 60px;
-    white-space: nowrap;
-}
-.burger-button {
-    display: flex; /* Скрытие кнопки на больших экранах */
-    flex-direction: column; /* Вертикальное выравнивание линий */
-    justify-content: space-around; /* Равное расстояние между линиями */
-    width: 30px; /* Ширина кнопки */
-    height: 25px; /* Высота кнопки */
-    background: transparent; /* Прозрачный фон */
-    border: none; /* Убрать рамку */
-    cursor: pointer; /* Курсор в виде руки */
-    padding: 0; /* Убрать внутренние отступы */
-    box-sizing: border-box; /* Граница включена в размер элемента */
-    margin-left: 5%;
-}
-
-.burger-bar {
-    width: 100%; /* Ширина линий равна ширине кнопки */
-    height: 2px; /* Высота линий */
-    background-color: #ffffff; /* Цвет линий */
-    border-radius: 10px; /* Скругление краёв линий */
-    transition: all 0.3s linear; /* Плавность анимации */
-}
 /* Стили для главного изображения и текста */
 .hero-image img {
     width: 100%;
@@ -186,13 +83,11 @@ header.shadow {
 .button-container {
     display: flex;
     justify-content: center;
-    margin-top: 10%;
-    margin-bottom: 10%;
 }
 
 .configure-bot {
-    width: 302px;
-    height: 69px;
+    width: 300px;
+    height: 70px;
     background-color: #155F86;
     color: white;
     font-size: 25px;
@@ -212,10 +107,8 @@ header.shadow {
     /* Стили для состояния наведения */
 }
 .container {
-    width: 590px;
-    margin: 0 auto;
-    padding: 20px;
-    margin-top: 1%;
+    width: 80%;
+    margin: 1% auto 5% auto;
 }
 
 .container h1{
@@ -226,11 +119,20 @@ header.shadow {
 .steps {
     display: flex;
     flex-direction: column;
-    margin-top: 7%;
+    margin-top: 5%;
+}
+
+.steps img{
+    max-width: 1%;
+    min-width: 10px;
+    margin: 2% auto;
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out; /* Плавные переходы для эффектов */
+
 }
 
 .step {
-    margin-bottom: 20px;
+    margin: 0 auto;
+    width: 80%;
     display: flex; /* Используем flex для выравнивания */
     justify-content: center; /* Центрируем содержимое */
 	opacity: 0; /* Скрываем элементы */
@@ -242,14 +144,12 @@ header.shadow {
     opacity: 1; /* Полная видимость для активного элемента */
     transform: translateY(0); /* Возвращаем на исходное положение */
 }
-.content {
-    display: inline-block; /* Занимает ширину содержимого, не всего родительского элемента */
-    text-align: left; /* Выравнивание текста внутри content на левую сторону */
-    max-width: 100%; /* Ограничиваем максимальную ширину, чтобы предотвратить выход за пределы родителя */
-}
+
 
 .text {
     text-align: justify;
+    width: 80%;
+    margin: 0 auto;
 }
 
 .step h2 {
@@ -257,13 +157,7 @@ header.shadow {
     margin-bottom: 10px; /* Отступ после заголовка для визуального разделения */
 }
 
-.left {
-    align-self: flex-start; /* Выравнивание шагов left в левой части */
-}
 
-.right {
-    align-self: flex-end; /* Выравнивание шага right в правой части */
-}
 
 .step h2 {
     color: #333;
@@ -279,6 +173,16 @@ header.shadow {
 @media (max-width: 768px) {
     body {
         font-size: var(--font-size-base-min);
+    }
+    .steps{
+        width: 100%;
+    }
+
+    .step{
+        width: 100%;
+    }
+    .text{
+        width: 100%;
     }
 }
 
@@ -311,3 +215,4 @@ header.shadow {
     border-radius: 50%; /* Сделать круглым */
     box-shadow: 0 0 10px rgba(0,0,0,0.2); /* Добавить тень для эффекта "поднятия" */
 }
+

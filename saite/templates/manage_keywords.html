@@ -86,10 +86,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <body>
     <main>
     <div class="outer-container">
-        <div class="content-wrapper">
-
-            </div>
-        <div class="container" style="background-image: url('{% static 'images/manage_keywords/phone.png' %}'); background-size: cover;">
+        <div class="container">
             <h1>Настройки</h1>
             <div class="settings-form">
                 <form method="post">
@@ -312,10 +309,6 @@ document.addEventListener("DOMContentLoaded", function() {
             fill="#c0c0c7"
           />
           <g class="robot-eyes">
-            <!-- <path
-              d="M90.7582,65.36908h25a10,10,0,0,1,10,10h0a10,10,0,0,1-10,10h-25a10,10,0,0,1-10-10h0A10,10,0,0,1,90.7582,65.36908Z"
-              fill="#34345b"
-            /> -->
             <rect
               x="68"
               y="51"
@@ -331,23 +324,6 @@ document.addEventListener("DOMContentLoaded", function() {
       </g>
     </svg>
     </div>
-        <div class="second-container">
-    <div class="city-section">
-        <h1>Нет вашего города?</h1>
-        <p>Оставьте заявку</p>
-        <form>
-            <div class="form-group">
-                <label for="city-input">Город</label>
-                <input type="text" id="city-input" class="form-control" placeholder="Введите город">
-            </div>
-            <div class="form-group">
-                <label for="group-input">Группы</label>
-                <input type="text" id="group-input" class="form-control" placeholder="Введите группы через запятую">
-            </div>
-            <button type="submit" class="submit-button">Отправить</button>
-        </form>
-    </div>
-</div>
     <div id="loader" class="loader">
         <div class="loader-content">
             <img src="{% static 'images/main/load.gif' %}" alt="Loading" />

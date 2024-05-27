@@ -14,27 +14,21 @@ body {
 }
 
     /* Container styling */
-    .outer-container {
-        width: 100%; /* Full width */
-        display: flex;
-        justify-content: center; /* Center content horizontally */
-         /* Center content vertically */
-        margin-top: 10%;
+.outer-container {
+    width: 100%; /* Full width */
+    display: flex;
+    margin-top: 1%;
 }
-.content-wrapper {
-    display: flex; /* Размещение элементов в строку */
-    align-items: center; /* Центрирование по вертикали */
-    width: max(350px);
-}
+
 .container {
-    max-width: 600px;
-    flex: 0 1 auto;
-    padding: 126px;
+    width: 50%;
+    margin: 0 auto;
+    margin-left: 25%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin-right: 20px;
+
 }
 
 .container h1 {
@@ -194,27 +188,12 @@ body {
     border-radius: 50%; /* Сделать круглым */
     box-shadow: 0 0 10px rgba(0,0,0,0.2); /* Добавить тень для эффекта "поднятия" */
 }
-    .custom-button {
-    background-color: #155F86;
-    border: none;
-    border-radius: 4px;
-    color: white;
-    padding: 8px 16px;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    outline: none;
-    transition: background-color 0.3s;
-    height: 34px;
-    }
-    .robot-box{
-              width: max(350px);
-              height: 350px;
-          }
+
+.robot-box{
+    width: 25%;
+}
 .robot {
-    width: 250px;
-    height: 250px;
+    width: 100%;
     animation: robotMoves 2s ease-in-out alternate infinite;
 }
 
@@ -440,4 +419,14 @@ body {
     font-size: 2em;
     color: #007bff;
     margin-bottom: 10px; /* Добавим отступ снизу для лучшего выравнивания */
+}
+
+@media (max-width: 768px) {
+    .robot-box {
+        display: none;
+    }
+
+    .navbar {
+        width: calc(100% - 40px);
+    }
 }

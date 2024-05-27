@@ -22,7 +22,7 @@ header {
     position: sticky;
     top: 0;
     z-index: 1000;
-    background: rgba(38, 38, 38, 1);
+    background-color: #333;
     box-shadow: 0 2px 4px 0 rgba(0,0,0,.2);
     transition: box-shadow 0.3s ease-in-out;
 }
@@ -39,45 +39,12 @@ header.shadow {
 
 .logo {
     /* Адаптивное изменение размера логотипа */
-    width: calc(var(--logo-size-min) + (var(--logo-size-max) - var(--logo-size-min)) * ((100vw - var(--screen-width-min)) / (var(--screen-width-max) - var(--screen-width-max))));
+    width: calc(var(--logo-size-min) + (var(--logo-size-max) - var(--logo-size-min)) * ((100vw - var(--screen-width-min)) / (var(--screen-width-max) - var(--screen-width-min))));
     height: auto; /* Сохраняем пропорции логотипа */
-}
-.custom-button {
-    background-color: #155F86; /* Синий цвет фона */
-    border: none;
-    border-radius: 4px;
-    color: white; /* Белый текст */
-    padding: 8px 16px; /* Отступы внутри кнопки */
-    font-size: 16px; /* Размер шрифта */
-    display: flex; /* Для выравнивания содержимого кнопки */
-    align-items: center; /* Выравнивание элементов по центру */
-    cursor: pointer;
-    outline: none;
-    transition: background-color 0.3s; /* Плавное изменение цвета при наведении */
-    height: 50px; /* Установленная высота кнопки */
 }
 
 .custom-button:hover {
     background-color: #124f70; /* Темно-синий цвет при наведении */
-}
-.custom-button2 {
-    background-color: rgba(28, 134, 189, 1);
-    border: none;
-    border-radius: 4px;
-    margin-left: 20%;
-    color: white; /* Белый текст */
-    padding: 8px 16px; /* Отступы внутри кнопки */
-    font-size: 16px; /* Размер шрифта */
-    display: flex; /* Для выравнивания содержимого кнопки */
-    align-items: center; /* Выравнивание элементов по центру */
-    cursor: pointer;
-    outline: none;
-    transition: background-color 0.3s; /* Плавное изменение цвета при наведении */
-    height: 50px; /* Установленная высота кнопки */
-}
-
-.custom-button2:hover {
-    background-color: rgba(25, 112, 158, 1); /* Темно-синий цвет при наведении */
 }
 
 .icon-container {
@@ -102,63 +69,134 @@ header.shadow {
     .logo {
         width: var(--logo-size-max); /* Фиксированный максимальный размер для больших экранов */
     }
+
 }
+
 
 .navbar {
     display: flex;
-    justify-content: start;
     align-items: center;
-    padding-left: 15%;
+    justify-content: space-between;
+    width: 80%;
+    margin: 0 auto;
+    padding: 10px 20px;
+
+    color: #fff;
+    position: relative;
+}
+
+.logo-container img {
+    height: 40px;
+}
+
+.nav-list {
+    display: flex;
+    list-style-type: none;
+    align-items:center;
+    width: 100%;
+    justify-content: space-between;
+    padding: 0;
+    margin-left: 10%;
+}
+
+.nav-list li {
+    margin: 0 15px;
 }
 
 .text-button {
-    background: none;
-    border: none;
-    font-family: 'Jost', sans-serif;
-    font-size: 1rem; /* Замените на ваш размер шрифта */
-    color: #ffffff; /* Замените на ваш цвет */
-    cursor: pointer;
-    transition: all 0.3s ease;
+    color: #fff;
+    text-decoration: none;
 }
 
 .text-button:hover {
-    /* Стили для состояния наведения */
+    text-decoration: underline;
 }
-.nav-list {
-    list-style: none;
+
+.otstup {
+    flex-grow: 1;
+}
+
+.custom-button, .custom-button2 {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding-left: 0;
-    margin-left: 15%;
+    color: #fff;
+    text-decoration: none;
+    background-color: #007BFF;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-left: 10px;
 }
-.nav-list li {
-    margin: 0 30px;
+
+.custom-button .icon-container, .custom-button2 .icon-container {
+    display: flex;
+    align-items: center;
 }
-.otstup{
-width: max(20%);
-}
+
 .burger-button {
-    display: flex; /* Скрытие кнопки на больших экранах */
-    flex-direction: column; /* Вертикальное выравнивание линий */
-    justify-content: space-around; /* Равное расстояние между линиями */
-    width: 30px; /* Ширина кнопки */
-    height: 25px; /* Высота кнопки */
-    background: transparent; /* Прозрачный фон */
-    border: none; /* Убрать рамку */
-    cursor: pointer; /* Курсор в виде руки */
-    padding: 0; /* Убрать внутренние отступы */
-    box-sizing: border-box; /* Граница включена в размер элемента */
-    margin-left: 5%;
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
 }
 
 .burger-bar {
-    width: 100%; /* Ширина линий равна ширине кнопки */
-    height: 2px; /* Высота линий */
-    background-color: #ffffff; /* Цвет линий */
-    border-radius: 10px; /* Скругление краёв линий */
-    transition: all 0.3s linear; /* Плавность анимации */
+    width: 25px;
+    height: 3px;
+    background-color: #fff;
+    margin: 3px 0;
 }
+
+/* Адаптивные стили */
+@media (max-width: 768px) {
+    .nav-list {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        margin: 0 ;
+        text-align: center;
+        background-color: #333;
+        position: absolute;
+        top: 60px; /* Высота header'а */
+        left: 0;
+        right: 0;
+    }
+
+    .nav-list li {
+        margin: 10px 0;
+    }
+
+    .navbar {
+        flex-wrap: wrap;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .burger-button {
+        display: flex;
+    }
+
+    .nav-list.active {
+        display: flex;
+    }
+
+    .custom-button, .custom-button2 {
+        display: none;
+        margin-top: 10px;
+    }
+
+    .nav-list.active .custom-button, .nav-list.active .custom-button2 {
+        display: flex;
+    }
+}
+
+/* Дополнительные стили для активного состояния бургер-меню */
+.navbar .burger-button.active + .nav-list {
+    display: flex;
+}
+
 
 /* Стили для футера */
 footer {
@@ -166,7 +204,7 @@ footer {
     padding-top: 20px;
     text-align: center;
     border-top: 1px solid #e9ecef;
-    margin-top: auto;
+    margin-top: 7%;
     border-top: solid 2px;
     border-color: #cdcdcd75;
 }

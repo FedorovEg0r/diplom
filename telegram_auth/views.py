@@ -48,7 +48,7 @@ def set_webhook(**kwargs):
 
 TELEGRAM_API = 'https://api.telegram.org/bot'
 TELEGRAM_TOKEN = '6794656536:AAHRrqdax_iANoWmeAeMbX6C_YomWgWxsDw'
-WEBHOOK_URL = 'https://3b59-95-25-60-209.ngrok-free.app/telegram-webhook'
+WEBHOOK_URL = 'https://35d2-194-58-34-4.ngrok-free.app/telegram-webhook'
 BASE_URL = WEBHOOK_URL.rsplit('/', 1)[0]
 
 
