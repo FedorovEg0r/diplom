@@ -11,17 +11,18 @@
     <link rel="stylesheet" href="{% static 'css/headerfooter.css' %}">
 </head>
 <body>
+<script src="{% static 'js/jsloader.js' %}"></script>
     <header>
         <nav class="navbar">
-            <div class="logo-container">
+            <a href="{% url 'main-page' %}" class="logo-container">
                 <img src="{% static 'images/header/logo.svg' %}" alt="Логотип" class="logo">
-            </div>
+            </a>
             <ul class="nav-list">
                 <li><a href="{% url 'main-page' %}" class="text-button">Главная</a></li>
                 <li><a href="{% url 'news-page' %}" class="text-button">Новости</a></li>
-                <li><a class="text-button">Каталог</a></li>
                 <li><a href="{% url 'about-page' %}" class="text-button">О нас</a></li>
             </ul>
+            <div class="otstup"></div>
             {% if user.is_authenticated %}
             <a href="{% url 'settings-page' %}" class="custom-button">
                 <span class="icon-container">
@@ -58,17 +59,11 @@
         <footer>
         <div class="footer-container">
             <div class="footer-section">
-                <h3>О нас</h3>
-                <p>EvHub — это ваш надежный помощник в поиске мероприятий в Telegram. Мы стремимся сделать процесс поиска событий быстрым и удобным для всех пользователей.</p>
-            </div>
-            <div class="footer-section">
                 <h3>Быстрые ссылки</h3>
                 <ul class="footer-links">
                     <li><a href="{% url 'main-page' %}">Главная</a></li>
                     <li><a href="{% url 'news-page' %}">Новости</a></li>
-                    <li><a> Каталог</a></li>
                     <li><a href="{% url 'about-page' %}">О нас</a></li>
-                    <li><a href="#">Контакты</a></li>
                 </ul>
             </div>
             <div class="footer-section">

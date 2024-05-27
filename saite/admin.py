@@ -11,8 +11,9 @@ class CityAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     inlines = [TelegramGroupInline]
 
+
 @admin.register(TelegramGroup)
 class TelegramGroupAdmin(admin.ModelAdmin):
-    list_display = ('group_tag', 'city')
+    list_display = ('group_tag', 'channel_id', 'city')
     search_fields = ('group_tag', 'city__name')
     list_filter = ('city',)

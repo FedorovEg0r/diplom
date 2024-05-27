@@ -50,21 +50,6 @@ header.shadow {
     width: calc(var(--logo-size-min) + (var(--logo-size-max) - var(--logo-size-min)) * ((100vw - var(--screen-width-min)) / (var(--screen-width-max) - var(--screen-width-min))));
     height: auto; /* Сохраняем пропорции логотипа */
 }
-.custom-button {
-    background-color: #155F86; /* Синий цвет фона */
-    border: none;
-    border-radius: 4px;
-    margin-left: 20%;
-    color: white; /* Белый текст */
-    padding: 8px 16px; /* Отступы внутри кнопки */
-    font-size: 16px; /* Размер шрифта */
-    display: flex; /* Для выравнивания содержимого кнопки */
-    align-items: center; /* Выравнивание элементов по центру */
-    cursor: pointer;
-    outline: none;
-    transition: background-color 0.3s; /* Плавное изменение цвета при наведении */
-    height: 50px; /* Установленная высота кнопки */
-}
 
 .custom-button:hover {
     background-color: #124f70; /* Темно-синий цвет при наведении */
@@ -123,7 +108,8 @@ header.shadow {
     margin-left: 15%;
 }
 .nav-list li {
-    margin: 0 30px;
+    margin: 0 60px;
+    white-space: nowrap;
 }
 .burger-button {
     display: flex; /* Скрытие кнопки на больших экранах */

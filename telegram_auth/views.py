@@ -12,7 +12,7 @@ from django.core.signals import request_started
 from django.contrib.auth import login
 from django.shortcuts import redirect
 from .models import TelegramProfile, UserLogin, ParserSetting
-from saite.models import City, Parser, TelegramGroup  # Импорт моделей из saite
+from saite.models import City, TelegramGroup  # Импорт моделей из saite
 from django.contrib.auth.models import User
 import secrets
 from django.dispatch import receiver
@@ -48,7 +48,7 @@ def set_webhook(**kwargs):
 
 TELEGRAM_API = 'https://api.telegram.org/bot'
 TELEGRAM_TOKEN = '6794656536:AAHRrqdax_iANoWmeAeMbX6C_YomWgWxsDw'
-WEBHOOK_URL = 'https://6cc6-178-76-218-138.ngrok-free.app/telegram-webhook'
+WEBHOOK_URL = 'https://3b59-95-25-60-209.ngrok-free.app/telegram-webhook'
 BASE_URL = WEBHOOK_URL.rsplit('/', 1)[0]
 
 
@@ -93,34 +93,45 @@ def update_parser_settings(request):
         return JsonResponse({'status': 'error', 'message': 'Пользователь не аутентифицирован'}, status=403)
 
     user = request.user
-    parser = Parser.objects.filter(user=user).first()
 
-    if not parser:
-        return JsonResponse({'status': 'error', 'message': 'Настройки парсера не найдены'}, status=404)
+    # Получение данных из POST-запроса
+    city_id = request.POST.get('city')
+    keywords = request.POST.get('keywords')
+
+    if not city_id:
+        return JsonResponse({'status': 'error', 'message': 'Город не указан'}, status=400)
+
+    try:
+        city = City.objects.get(id=city_id)
+    except City.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Некорректный город'}, status=400)
 
     # Удаление всех старых настроек парсера для данного пользователя
     ParserSetting.objects.filter(user=user).delete()
 
-    # Получение тегов групп из выбранного города
-    city = parser.city
-    groups = TelegramGroup.objects.filter(city=city)
-
-    # Создание одной новой настройки парсера для выбранного города
-    ParserSetting.objects.create(
+    # Создание новой настройки парсера для выбранного города
+    parser = ParserSetting.objects.create(
         user=user,
-        parser=parser,
+        city=city,
+        keywords=keywords
     )
+
+    # Получение тегов групп из выбранного города
+    groups = TelegramGroup.objects.filter(city=city)
 
     # Формирование сообщения для Telegram
     group_tags = ", ".join(group.group_tag for group in groups)
-    message = (f"Настройки парсера обновлены для города {city.name} с ключевыми словами: {parser.keywords}. "
-               f"Группы: {group_tags}")
+    message = (f"Настройки парсера обновлены для города {city.name} с ключевыми словами: {keywords}. "
+               f"\nГруппы: {group_tags}")
 
     # Отправка уведомления в Telegram
     telegram_profile = TelegramProfile.objects.get(user=user)
     send_telegram_message(telegram_profile.chat_id, message)
 
     return JsonResponse({'status': 'success', 'message': message})
+
+
+
 
 
 

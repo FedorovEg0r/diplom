@@ -46,7 +46,6 @@ header.shadow {
     background-color: #155F86; /* Синий цвет фона */
     border: none;
     border-radius: 4px;
-    margin-left: 20%;
     color: white; /* Белый текст */
     padding: 8px 16px; /* Отступы внутри кнопки */
     font-size: 16px; /* Размер шрифта */
@@ -129,11 +128,15 @@ header.shadow {
     list-style: none;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding-left: 0;
     margin-left: 15%;
 }
 .nav-list li {
     margin: 0 30px;
+}
+.otstup{
+width: max(20%);
 }
 .burger-button {
     display: flex; /* Скрытие кнопки на больших экранах */
@@ -164,6 +167,8 @@ footer {
     text-align: center;
     border-top: 1px solid #e9ecef;
     margin-top: auto;
+    border-top: solid 2px;
+    border-color: #cdcdcd75;
 }
 
 .footer-container {
@@ -172,7 +177,6 @@ footer {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    align-items: center;
 }
 
 .footer-section {
@@ -204,14 +208,14 @@ footer {
 }
 
 .footer-bottom {
-    background-color: rgba(38, 38, 38, 1);
+    background-color: rgb(233 236 239);
     padding: 10px;
     margin-top: 20px;
 }
 
 .footer-bottom p {
     margin: 0;
-    color: white;
+    color: black;
 }
 
 .footer-bottom a {
