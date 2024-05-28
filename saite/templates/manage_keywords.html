@@ -9,13 +9,91 @@
     <title>Управление ключевыми словами</title>
     <link rel="stylesheet" href="{% static 'css/stylekeywords.css' %}">
     <script>
+
         document.addEventListener('DOMContentLoaded', function() {
+            const customSettingsCheckbox = document.getElementById('custom-settings-checkbox');
+            const citySelection = document.getElementById('city-selection');
+            const customSettings = document.getElementById('custom-settings');
+            const groupList = document.getElementById('group-list');
+            const groupInput = document.getElementById('group-input');
+            const addGroupBtn = document.getElementById('add-group-btn');
+            const groupsField = document.getElementById('id_groups');
+            const groupWarning = document.getElementById('group-warning');
+            const existingGroups = "{{ groups|escapejs }}".split(',');
+
             const keywordList = document.getElementById('keyword-list');
             const keywordInput = document.getElementById('keyword-input');
             const addKeywordBtn = document.getElementById('add-keyword-btn');
             const keywordsField = document.getElementById('id_keywords');
             const existingKeywords = "{{ keywords|escapejs }}".split(',');
 
+            const excludeList = document.getElementById('exclude-list');
+            const excludeInput = document.getElementById('exclude-input');
+            const addExcludeBtn = document.getElementById('add-exclude-btn');
+            const excludesField = document.getElementById('id_excludes');
+            const existingExclude = "{{ excludes|escapejs }}".split(',');
+
+            customSettingsCheckbox.addEventListener('change', function() {
+                if (customSettingsCheckbox.checked) {
+                    citySelection.style.display = 'none';
+                    customSettings.style.display = 'block';
+                } else {
+                    citySelection.style.display = 'block';
+                    customSettings.style.display = 'none';
+                }
+            });
+
+            // Groups
+            existingGroups.forEach(group => {
+                if (group.trim()) {
+                    addGroupToList(group.trim());
+                }
+            });
+
+            addGroupBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const group = groupInput.value.trim();
+                if (/[А-Яа-яЁё]/.test(group)) {
+                    groupWarning.style.display = 'block';
+                } else {
+                    groupWarning.style.display = 'none';
+                    if (group) {
+                        addGroupToList(group);
+                        groupInput.value = '';
+                    }
+                }
+            });
+
+            groupInput.addEventListener('input', function() {
+                const value = groupInput.value.trim();
+                if (/[А-Яа-яЁё]/.test(value)) {
+                    groupWarning.style.display = 'block';
+                } else {
+                    groupWarning.style.display = 'none';
+                }
+            });
+
+            function addGroupToList(group) {
+                const li = document.createElement('li');
+                li.textContent = formatKeyword(group);
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = '×';
+                removeBtn.classList.add('remove-btn');
+                removeBtn.addEventListener('click', function() {
+                    li.remove();
+                    updateGroupsField();
+                });
+                li.appendChild(removeBtn);
+                groupList.appendChild(li);
+                updateGroupsField();
+            }
+
+            function updateGroupsField() {
+                const groups = Array.from(groupList.children).map(li => li.firstChild.textContent.replace('...', ''));
+                groupsField.value = groups.join(',');
+            }
+
+            // Keywords
             existingKeywords.forEach(keyword => {
                 if (keyword.trim()) {
                     addKeywordToList(keyword.trim());
@@ -55,65 +133,158 @@
                 keywordsField.value = keywords.join(',');
             }
 
+            // Excludes
+            existingExclude.forEach(exclude => {
+                if (exclude.trim()) {
+                    addExcludeToList(exclude.trim());
+                }
+            });
+
+            addExcludeBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const exclude = excludeInput.value.trim();
+                if (exclude) {
+                    addExcludeToList(exclude);
+                    excludeInput.value = '';
+                }
+            });
+
+            excludeInput.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    const exclude = excludeInput.value.trim();
+                    if (exclude) {
+                        addExcludeToList(exclude);
+                        excludeInput.value = '';
+                    }
+                }
+            });
+
+            function addExcludeToList(exclude) {
+                const li = document.createElement('li');
+                li.textContent = formatKeyword(exclude);
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = '×';
+                removeBtn.classList.add('remove-btn');
+                removeBtn.addEventListener('click', function() {
+                    li.remove();
+                    updateExcludesField();
+                });
+                li.appendChild(removeBtn);
+                excludeList.appendChild(li);
+                updateExcludesField();
+            }
+
+            function updateExcludesField() {
+                const excludes = Array.from(excludeList.children).map(li => li.firstChild.textContent.replace('...', ''));
+                excludesField.value = excludes.join(',');
+            }
+
+            document.querySelector('form').addEventListener('submit', function(event) {
+                if (!customSettingsCheckbox.checked && !document.getElementById('id_city').value) {
+                    event.preventDefault();
+                    alert('Пожалуйста, выберите город или включите кастомные настройки.');
+                }
+            });
+
             document.querySelector('form').addEventListener('submit', function() {
                 document.getElementById('loader').style.visibility = 'visible';
             });
-        });
-document.addEventListener("DOMContentLoaded", function() {
-    const robot = document.querySelector('.robot');
-    const keywordInput = document.querySelector('#keyword-input');
-    const addKeywordButton = document.querySelector('#add-keyword-btn');
 
-    keywordInput.addEventListener('input', function() {
-        if (keywordInput.value.trim() !== "") {
-            robot.classList.add('second-stage');
-        } else {
-            robot.classList.remove('second-stage');
-        }
-    });
+            const robot = document.querySelector('.robot');
+            keywordInput.addEventListener('input', function() {
+                if (keywordInput.value.trim() !== "") {
+                    robot.classList.add('second-stage');
+                } else {
+                    robot.classList.remove('second-stage');
+                }
+            });
 
-    addKeywordButton.addEventListener('click', function() {
+    addKeywordBtn.addEventListener('click', function() {
         robot.classList.remove('second-stage');
     });
 });
+document.addEventListener('DOMContentLoaded', function() {
+    const citySelect = document.getElementById('id_city');
+    const emptyOption = citySelect.querySelector('option[value=""]');
 
+    if (emptyOption) {
+        citySelect.removeChild(emptyOption);
+    }
 
-
-
+    if (!citySelect.value) {
+        citySelect.selectedIndex = 0;
+    }
+});
     </script>
 </head>
 <body>
     <main>
     <div class="outer-container">
+        <div class="content-wrapper">
+
+            </div>
         <div class="container">
             <h1>Настройки</h1>
             <div class="settings-form">
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label for="id_city"><img src="{% static 'images/manage_keywords/city_icon.svg' %}" alt="City Icon" class="city-icon">Выбери свой город</label>
-                        {{ form.city }}
-                    </div>
-                    <div class="form-group">
-                        <label for="keyword-input"><img src="{% static 'images/manage_keywords/keywords_icon.svg' %}" alt="Keywords Icon" class="keywords-icon">Ключевые слова</label>
-                        <div class="keyword-input-container">
-                            <input type="text" id="keyword-input" placeholder="Введите ключевое слово">
-                            <button id="add-keyword-btn">+</button>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="custom-settings-checkbox">
+                            <input type="checkbox" id="custom-settings-checkbox" name="custom-settings-checkbox">
+                            Кастомные настройки
+                            </label>
                         </div>
-                        <ul id="keyword-list"></ul>
-                        {{ form.keywords }}
+                        <div id="city-selection">
+                            <div class="form-group">
+                                <label for="id_city"><img src="{% static 'images/manage_keywords/city_icon.svg' %}" alt="City Icon" class="city-icon">Выбери свой город</label>
+                                {{ form.city }}
+                            </div>
+                        </div>
+                        <div id="custom-settings" style="display: none;">
+                            <div class="form-group">
+                                <label for="group-input"><img src="{% static 'images/manage_keywords/group_icon.svg' %}" alt="Keywords Icon" class="group-icon">Группы</label>
+                                <div class="keyword-input-container">
+                                    <input type="text" id="group-input" placeholder="Введите группу">
+                                    <button id="add-group-btn">+</button>
+                                </div>
+                                <div class="warning-message" id="group-warning" style="display: none;">
+                                    Пожалуйста, вводите группы на английском языке.
+                                </div>
+                                <ul id="group-list"></ul>
+                                {{ form.groups }}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="keyword-input"><img src="{% static 'images/manage_keywords/keywords_icon.svg' %}" alt="Keywords Icon" class="keywords-icon">Ключевые слова</label>
+                            <div class="keyword-input-container">
+                                <input type="text" id="keyword-input" placeholder="Введите ключевое слово">
+                                <button id="add-keyword-btn">+</button>
+                            </div>
+                            <ul id="keyword-list"></ul>
+                            {{ form.keywords }}
+                        </div>
+                        <div class="form-group">
+                            <label for="exclude-input"><img src="{% static 'images/manage_keywords/exclude_icon.svg' %}" alt="Exclude Icon" class="exclude-icon">Исключающие слова</label>
+                            <div class="keyword-input-container">
+                                <input type="text" id="exclude-input" placeholder="Введите исключающее слово">
+                                <button id="add-exclude-btn">+</button>
+                            </div>
+                            <ul id="exclude-list"></ul>
+                            {{ form.excludes }}
+                        </div>
+                        <button type="submit" class="save-button">Сохранить</button>
+                    </form>
+                    <div class="note">
+                        <h2>Памятка</h2>
+                        <ul>
+                            <li>Не добавляйте длинные бессмысленные слова</li>
+                            <li>При добавлении 1 слова не вводить два слова</li>
+                            <li>Вводите только ид группы на английском, а не ссылку</li>
+                            <li>Не забывайте нажать кнопку сохранить</li>
+                        </ul>
                     </div>
-                    <button type="submit" class="save-button">Сохранить</button>
-                </form>
-                <div class="note">
-                    <h2>Памятка</h2>
-                    <ul>
-                        <li>Не добавляйте длинные бессмысленные слова</li>
-                        <li>При добавлении 1 слова не вводить два слова</li>
-                        <li>Не забывайте нажать кнопку сохранить</li>
-                    </ul>
                 </div>
-            </div>
         </div>
                             <svg class ="robot-box" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 197.60004 221.93357">
       <g class="robot">

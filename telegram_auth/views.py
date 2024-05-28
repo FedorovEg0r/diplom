@@ -48,7 +48,7 @@ def set_webhook(**kwargs):
 
 TELEGRAM_API = 'https://api.telegram.org/bot'
 TELEGRAM_TOKEN = '6794656536:AAHRrqdax_iANoWmeAeMbX6C_YomWgWxsDw'
-WEBHOOK_URL = 'https://35d2-194-58-34-4.ngrok-free.app/telegram-webhook'
+WEBHOOK_URL = 'https://c4b1-95-25-60-209.ngrok-free.app/telegram-webhook'
 BASE_URL = WEBHOOK_URL.rsplit('/', 1)[0]
 
 
@@ -93,42 +93,54 @@ def update_parser_settings(request):
         return JsonResponse({'status': 'error', 'message': 'Пользователь не аутентифицирован'}, status=403)
 
     user = request.user
-
-    # Получение данных из POST-запроса
+    custom_settings = request.POST.get('custom-settings-checkbox') == 'on'
     city_id = request.POST.get('city')
     keywords = request.POST.get('keywords')
+    excludes = request.POST.get('excludes')
+    groups = request.POST.get('groups')
 
-    if not city_id:
-        return JsonResponse({'status': 'error', 'message': 'Город не указан'}, status=400)
-
-    try:
-        city = City.objects.get(id=city_id)
-    except City.DoesNotExist:
-        return JsonResponse({'status': 'error', 'message': 'Некорректный город'}, status=400)
-
-    # Удаление всех старых настроек парсера для данного пользователя
+    # Удаляем старые настройки
     ParserSetting.objects.filter(user=user).delete()
 
-    # Создание новой настройки парсера для выбранного города
-    parser = ParserSetting.objects.create(
-        user=user,
-        city=city,
-        keywords=keywords
-    )
+    if custom_settings:
+        print("proverka")
 
-    # Получение тегов групп из выбранного города
-    groups = TelegramGroup.objects.filter(city=city)
+        parser = ParserSetting.objects.create(
+            user=user,
+            city=None,
+            keywords=keywords,
+            excludes=excludes,
+            groups=groups,
+        )
+    else:
+        if not city_id:
+            return JsonResponse({'status': 'error', 'message': 'Город не указан'}, status=400)
 
-    # Формирование сообщения для Telegram
-    group_tags = ", ".join(group.group_tag for group in groups)
-    message = (f"Настройки парсера обновлены для города {city.name} с ключевыми словами: {keywords}. "
-               f"\nГруппы: {group_tags}")
+        try:
+            city = City.objects.get(id=city_id)
+        except City.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Некорректный город'}, status=400)
 
-    # Отправка уведомления в Telegram
+        # Создаем новые настройки с указанным городом
+        parser = ParserSetting.objects.create(
+            user=user,
+            city=city,
+            keywords=keywords,
+            excludes=excludes,
+        )
+
+    message = "Настройки парсера обновлены."
+    if custom_settings:
+        message += f" Ключевые слова: {keywords}, исключающие слова: {excludes}, группы: {groups}."
+    else:
+        message += f" Город: {city.name}, ключевые слова: {keywords}, исключающие слова: {excludes}."
+
     telegram_profile = TelegramProfile.objects.get(user=user)
     send_telegram_message(telegram_profile.chat_id, message)
 
     return JsonResponse({'status': 'success', 'message': message})
+
+
 
 
 
@@ -186,5 +198,4 @@ def login_by_token(request):
         return redirect('/')  # Перенаправление на главную страницу
     except TelegramProfile.DoesNotExist:
         return HttpResponse('Неверный токен', status=400)
-
 
