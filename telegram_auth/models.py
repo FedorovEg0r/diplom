@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from saite import models as saite_models
-from saite.models import City
+from saite.models import City, TelegramGroup
 
 
 class TelegramProfile(models.Model):
@@ -23,7 +23,7 @@ class UserLogin(models.Model):
 
 class ParserSetting(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    city = models.ForeignKey(City, null=True, blank=True, on_delete=models.SET_NULL)
+    city = models.ForeignKey(City, null=True, on_delete=models.SET_NULL)
     keywords = models.TextField(blank=True)
     excludes = models.TextField(blank=True)
     groups = models.TextField(blank=True)

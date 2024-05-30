@@ -2,9 +2,10 @@ import os
 import django
 import asyncio
 from telethon import TelegramClient, events
-from telethon.errors import FloodWaitError
+from telethon.errors import RpcCallFailError, FloodWaitError, UsernameNotOccupiedError, ChannelPrivateError
 from telethon.tl.types import MessageMediaPhoto, MessageMediaDocument, Channel
-from telethon.tl.functions.channels import JoinChannelRequest
+from telethon.tl.functions.channels import JoinChannelRequest, LeaveChannelRequest
+from telethon.tl.functions.contacts import ResolveUsernameRequest
 from datetime import datetime, timezone
 import telebot
 from telebot import types
@@ -14,7 +15,7 @@ os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 django.setup()
 
 from saite.models import TelegramGroup
-from telegram_auth.models import TelegramProfile, ParserSetting
+from telegram_auth.models import TelegramProfile, ParserSetting, User
 
 
 async def is_recent_message(message):
@@ -24,12 +25,12 @@ async def is_recent_message(message):
     return time_difference < 30
 
 
-api_id = 12075432
-api_hash = 'f5196f6b68ad458d236ad501c4d90a95'
+api_id = 24503676
+api_hash = '0423f4e40d705df79f59c74e2fc67276'
 TOKEN = '6794656536:AAHRrqdax_iANoWmeAeMbX6C_YomWgWxsDw'
 bot = telebot.TeleBot(TOKEN)
 
-client = TelegramClient('session_name', api_id, api_hash, system_version="4.16.30-vxCUSTOM")
+client = TelegramClient('session_name1', api_id, api_hash, system_version="4.16.30-vxCUSTOM")
 
 calendar_button = types.InlineKeyboardButton('Добавить событие в Google Календарь',
                                              callback_data='add_event_to_google_calendar')
@@ -38,99 +39,171 @@ keyboard.add(calendar_button)
 
 
 async def join_channels():
-    channels = list(TelegramGroup.objects.all().values_list('channel_id', flat=True))
-    for channel_id in channels:
-        await join_channel(channel_id)
+    tags = list(TelegramGroup.objects.all().values_list('group_tag', flat=True))
+    for tag in tags:
+        await join_channel(tag)
 
 
-async def join_channel(channel_id):
+async def join_channel(tag):
     try:
-        await client(JoinChannelRequest(channel_id))
+        result = await client(ResolveUsernameRequest(tag.lstrip('@')))
+        if not result.chats and not result.users:
+            raise UsernameNotOccupiedError(request=ResolveUsernameRequest(tag.lstrip('@')))
+        await client(JoinChannelRequest(tag))
     except FloodWaitError as e:
         await asyncio.sleep(e.seconds + 1)
-        await client(JoinChannelRequest(channel_id))
+        await client(JoinChannelRequest(tag))
+    except ChannelPrivateError:
+        handle_invalid_channel(tag)
+    except UsernameNotOccupiedError:
+        handle_invalid_channel(tag)
+    except ValueError as e:
+        if 'No user has "{}" as username'.format(tag) in str(e):
+            handle_invalid_channel(tag)
+        else:
+            raise
 
 
-# @bot.callback_query_handler(func=lambda call: call.data.startswith('add_event_to_google_calendar'))
-# def add_event_to_google_calendar_callback(call):
-# chat_id = call.message.chat.id
-# bot.send_message(chat_id, "Кнопка работает")
+def handle_invalid_channel(tag):
+    try:
+        invalid_group = TelegramGroup.objects.get(group_tag=tag)
+        users_with_invalid_group = ParserSetting.objects.filter(groups__icontains=tag).values_list('user', flat=True)
+
+        for user_id in users_with_invalid_group:
+            try:
+                user = User.objects.get(id=user_id)
+                chat_id = user.telegram_profile.chat_id
+                bot.send_message(chat_id,
+                                 f"Канал с тегом {tag} был удален из ваших настроек, т. к. не существует или недоступен для входа.")
+
+                parser_setting = ParserSetting.objects.get(user_id=user_id)
+                groups = parser_setting.groups.split(',')
+                groups = [group.strip() for group in groups if group.strip() != tag]
+                parser_setting.groups = ','.join(groups)
+                parser_setting.save()
+
+            except User.DoesNotExist:
+                continue
+            except ParserSetting.DoesNotExist:
+                continue
+
+        invalid_group.delete()
+    except TelegramGroup.DoesNotExist:
+        pass
+
+
+async def leave_channel(tag):
+    try:
+        await client(LeaveChannelRequest(await client.get_input_entity(tag)))
+    except Exception as e:
+        print(f"Ошибка при отписке от канала {tag}: {e}")
+    except FloodWaitError as e:
+        await asyncio.sleep(e.seconds + 1)
+        await client(LeaveChannelRequest(await client.get_input_entity(tag)))
 
 
 async def normal_handler(event):
     if not await is_recent_message(event.message):
         return
-    msg = event.message.text
-    chan_id = event.chat_id
-    chan_id_full = chan_id
-    if isinstance(chan_id, int):
-        media = event.message.media
-        file_path = None
+    msg = event.message.message
+    chan_tag = event.chat.username
+    chan_tag_full = '@' + chan_tag
+    media = event.message.media
+    file_path = None
 
+    try:
+        telegram_group = TelegramGroup.objects.get(group_tag=chan_tag_full)
+    except TelegramGroup.DoesNotExist:
+        return
+
+    users_with_city = ParserSetting.objects.filter(city=telegram_group.city, city__isnull=False).values_list('user',
+                                                                                                             flat=True)
+    users_with_custom_group = ParserSetting.objects.filter(groups__icontains=chan_tag_full).values_list('user',
+                                                                                                        flat=True)
+    all_users = set(users_with_city) | set(users_with_custom_group)
+
+    for user_id in all_users:
         try:
-            telegram_group = TelegramGroup.objects.get(channel_id=chan_id_full)
-        except TelegramGroup.DoesNotExist:
-            return
+            parser = ParserSetting.objects.get(user_id=user_id)
+        except ParserSetting.DoesNotExist:
+            continue
 
-        parsers = ParserSetting.objects.filter(city=telegram_group.city)
+        keywords = parser.keywords.split(',')
+        excludes = parser.excludes.split(',') if parser.excludes else []
 
-        for parser in parsers:
-            keywords = parser.keywords.split(',')
-            found_keywords = [word.strip() for word in keywords if word.strip().casefold() in msg.casefold()]
+        found_keywords = [word.strip() for word in keywords if word.strip().casefold() in msg.casefold()]
+        found_excludes = [word.strip() for word in excludes if word.strip().casefold() in msg.casefold()]
 
-            if found_keywords:
-                keywords_str = ', '.join(found_keywords)
-                text_msg = (f"Сообщение из канала {telegram_group.group_tag}:\n\n{msg}\n\n"
-                            f"Найдено по ключевым словам: {keywords_str}\n")
-                chat_id = parser.user.telegram_profile.chat_id
+        if found_keywords and not found_excludes:
+            keywords_str = ', '.join(found_keywords)
+            text_msg = (f"Сообщение из канала {telegram_group.group_tag}:\n\n{msg}\n\n"
+                        f"Найдено по ключевым словам: {keywords_str}\n")
+            chat_id = parser.user.telegram_profile.chat_id
 
-                try:
-                    if media:
-                        if isinstance(media, MessageMediaPhoto):
-                            file_path = await event.message.download_media()
-                            with open(file_path, 'rb') as photo:
-                                bot.send_photo(chat_id, photo, caption=text_msg, reply_markup=keyboard)
-                            os.remove(file_path)
-                        elif isinstance(media, MessageMediaDocument):
-                            file_path = await event.message.download_media()
-                            with open(file_path, 'rb') as video:
-                                bot.send_video(chat_id, video, caption=text_msg, reply_markup=keyboard)
-                            os.remove(file_path)
-                    else:
-                        bot.send_message(chat_id, text_msg, reply_markup=keyboard)
-                except FloodWaitError as e:
-                    await asyncio.sleep(e.seconds + 1)
-                    if media:
-                        if isinstance(media, MessageMediaPhoto):
-                            file_path = await event.message.download_media()
-                            with open(file_path, 'rb') as photo:
-                                bot.send_photo(chat_id, photo, caption=text_msg, reply_markup=keyboard)
-                            os.remove(file_path)
-                        elif isinstance(media, MessageMediaDocument):
-                            file_path = await event.message.download_media()
-                            with open(file_path, 'rb') as video:
-                                bot.send_video(chat_id, video, caption=text_msg, reply_markup=keyboard)
-                            os.remove(file_path)
-                    else:
-                        bot.send_message(chat_id, text_msg, reply_markup=keyboard)
+            try:
+                if media:
+                    if isinstance(media, MessageMediaPhoto):
+                        file_path = await event.message.download_media()
+                        with open(file_path, 'rb') as photo:
+                            bot.send_photo(chat_id, photo, caption=text_msg, reply_markup=keyboard)
+                        os.remove(file_path)
+                    elif isinstance(media, MessageMediaDocument):
+                        file_path = await event.message.download_media()
+                        with open(file_path, 'rb') as video:
+                            bot.send_video(chat_id, video, caption=text_msg, reply_markup=keyboard)
+                        os.remove(file_path)
+                else:
+                    bot.send_message(chat_id, text_msg, reply_markup=keyboard)
+            except FloodWaitError as e:
+                await asyncio.sleep(e.seconds + 1)
+                if media:
+                    if isinstance(media, MessageMediaPhoto):
+                        file_path = await event.message.download_media()
+                        with open(file_path, 'rb') as photo:
+                            bot.send_photo(chat_id, photo, caption=text_msg, reply_markup=keyboard)
+                        os.remove(file_path)
+                    elif isinstance(media, MessageMediaDocument):
+                        file_path = await event.message.download_media()
+                        with open(file_path, 'rb') as video:
+                            bot.send_video(chat_id, video, caption=text_msg, reply_markup=keyboard)
+                        os.remove(file_path)
+                else:
+                    bot.send_message(chat_id, text_msg, reply_markup=keyboard)
 
 
 async def check_new_groups():
     while True:
         try:
             if client.is_connected():
-                current_channels = set(TelegramGroup.objects.all().values_list('channel_id', flat=True))
-                subscribed_channels = set(
-                    [dialog.entity.id for dialog in await client.get_dialogs() if isinstance(dialog.entity, Channel)])
+                current_channels = set(TelegramGroup.objects.all().values_list('group_tag', flat=True))
+                dialogs = await client.get_dialogs()
+                subscribed_channels = set('@' + dialog.entity.username for dialog in dialogs if
+                                          isinstance(dialog.entity, Channel) and dialog.entity.username)
 
                 new_channels = current_channels - subscribed_channels
+                removed_channels = subscribed_channels - current_channels
 
-                for channel_id in new_channels:
-                    await join_channel(channel_id)
+                for tag in new_channels:
+                    try:
+                        await join_channel(tag)
+                    except FloodWaitError as e:
+                        print(f"Flood wait error for joining channel {tag}. Waiting for {e.seconds} seconds.")
+                        await asyncio.sleep(e.seconds + 1)
+                        await join_channel(tag)
+
+                for tag in removed_channels:
+                    try:
+                        await leave_channel(tag)
+                    except FloodWaitError as e:
+                        print(f"Flood wait error for leaving channel {tag}. Waiting for {e.seconds} seconds.")
+                        await asyncio.sleep(e.seconds + 1)
+                        await leave_channel(tag)
+
         except RpcCallFailError as e:
             await asyncio.sleep(60)
+
         except Exception as e:
-            print(f"Возникла ошибка: {e}")
+            print(f"An error occurred: {e}")
 
         await asyncio.sleep(60)
 
@@ -138,7 +211,7 @@ async def check_new_groups():
 async def main():
     await client.start()
     await join_channels()
-    await check_new_groups()
+    asyncio.create_task(check_new_groups())
     await client.run_until_disconnected()
 
 

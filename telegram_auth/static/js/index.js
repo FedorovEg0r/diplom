@@ -56,7 +56,7 @@ app.post('/telegram-webhook', (req, res) => {
             authCodes.set(authCode, chatId);
         }
         sendMessage(chatId, `Ваш код авторизации: ${authCode}`);
-        console.log(`Отправленный код для chatId ${chatId}: ${authCode}`); // Логирование отправленного кода
+        console.log(`Отправленный код для chatId ${chatId}: ${authCode}`);
     }
 
     res.sendStatus(200);
@@ -64,7 +64,7 @@ app.post('/telegram-webhook', (req, res) => {
 
 app.post('/check-code', (req, res) => {
     const userCode = req.body.code;
-    console.log(`Проверяемый код: ${userCode}`); // Логирование проверяемого кода
+    console.log(`Проверяемый код: ${userCode}`);
     const chatId = authCodes.get(userCode);
 
     if (chatId) {

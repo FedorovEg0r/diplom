@@ -3,9 +3,9 @@ from .models import City, TelegramGroup
 from .models import News
 
 
-class TelegramGroupInline(admin.TabularInline):  # или admin.StackedInline для другого стиля отображения
+class TelegramGroupInline(admin.TabularInline):
     model = TelegramGroup
-    extra = 1  # Количество пустых форм для добавления новых групп
+    extra = 1
 
 
 @admin.register(City)
@@ -17,7 +17,7 @@ class CityAdmin(admin.ModelAdmin):
 
 @admin.register(TelegramGroup)
 class TelegramGroupAdmin(admin.ModelAdmin):
-    list_display = ('group_tag', 'channel_id', 'city')
+    list_display = ('group_tag', 'city', 'get_users')
     search_fields = ('group_tag', 'city__name')
     list_filter = ('city',)
 

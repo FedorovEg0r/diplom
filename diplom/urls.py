@@ -1,4 +1,3 @@
-
 from django.contrib import admin
 from django.urls import path
 from django.urls import path, include
@@ -19,6 +18,7 @@ urlpatterns = [
     path('login/', telegram_auth_views.login_by_token, name='login-by-token'),
     path("ckeditor5/", include('django_ckeditor_5.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

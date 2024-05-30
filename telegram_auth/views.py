@@ -1,4 +1,3 @@
-# telegram_auth/views.py
 import json
 from django.shortcuts import render
 import logging
@@ -12,14 +11,13 @@ from django.core.signals import request_started
 from django.contrib.auth import login
 from django.shortcuts import redirect
 from .models import TelegramProfile, UserLogin, ParserSetting
-from saite.models import City, TelegramGroup  # Импорт моделей из saite
+from saite.models import City, TelegramGroup
 from django.contrib.auth.models import User
 import secrets
 from django.dispatch import receiver
 from django.contrib.auth import logout
 from django.views.decorators.http import require_POST
 
-# Настройка логирования
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
@@ -48,7 +46,7 @@ def set_webhook(**kwargs):
 
 TELEGRAM_API = 'https://api.telegram.org/bot'
 TELEGRAM_TOKEN = '6794656536:AAHRrqdax_iANoWmeAeMbX6C_YomWgWxsDw'
-WEBHOOK_URL = 'https://c4b1-95-25-60-209.ngrok-free.app/telegram-webhook'
+WEBHOOK_URL = 'https://554d-95-25-60-228.ngrok-free.app/telegram-webhook'
 BASE_URL = WEBHOOK_URL.rsplit('/', 1)[0]
 
 
@@ -86,6 +84,13 @@ def send_welcome_message(chat_id):
     send_telegram_message(chat_id, welcome_text)
 
 
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+from .models import City, TelegramGroup, ParserSetting
+from django.contrib.auth.models import User
+
+
 @require_POST
 @csrf_exempt
 def update_parser_settings(request):
@@ -99,11 +104,12 @@ def update_parser_settings(request):
     excludes = request.POST.get('excludes')
     groups = request.POST.get('groups')
 
-    # Удаляем старые настройки
     ParserSetting.objects.filter(user=user).delete()
 
     if custom_settings:
-        print("proverka")
+        user_groups = list(user.telegram_groups.all())
+
+        user.telegram_groups.clear()
 
         parser = ParserSetting.objects.create(
             user=user,
@@ -112,6 +118,21 @@ def update_parser_settings(request):
             excludes=excludes,
             groups=groups,
         )
+
+        group_ids = groups.split(',')
+        for group_id in group_ids:
+            telegram_group, created = TelegramGroup.objects.get_or_create(
+                group_tag=group_id,
+            )
+            if created:
+                telegram_group.save()
+
+            telegram_group.users.add(user)
+
+        for group in user_groups:
+            if group.users.count() == 0 and group.city is None:
+                group.delete()
+
     else:
         if not city_id:
             return JsonResponse({'status': 'error', 'message': 'Город не указан'}, status=400)
@@ -121,13 +142,18 @@ def update_parser_settings(request):
         except City.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Некорректный город'}, status=400)
 
-        # Создаем новые настройки с указанным городом
         parser = ParserSetting.objects.create(
             user=user,
             city=city,
             keywords=keywords,
             excludes=excludes,
         )
+
+        user_groups = user.telegram_groups.all()
+        for group in user_groups:
+            group.users.remove(user)
+            if group.users.count() == 0 and group.city is None:
+                group.delete()
 
     message = "Настройки парсера обновлены."
     if custom_settings:
@@ -139,12 +165,6 @@ def update_parser_settings(request):
     send_telegram_message(telegram_profile.chat_id, message)
 
     return JsonResponse({'status': 'success', 'message': message})
-
-
-
-
-
-
 
 
 @csrf_exempt
@@ -166,8 +186,8 @@ def telegram_webhook(request):
                 user, user_created = User.objects.get_or_create(username=username)
 
                 if user_created:
-                    user.set_password(secrets.token_urlsafe(16))  # Установка безопасного пароля
-                user.first_name = first_name  # Обновляем имя при каждом входе
+                    user.set_password(secrets.token_urlsafe(16))
+                user.first_name = first_name
                 user.save()
 
                 telegram_profile, profile_created = TelegramProfile.objects.get_or_create(
@@ -193,9 +213,8 @@ def login_by_token(request):
     try:
         telegram_profile = TelegramProfile.objects.get(token=token)
         user = telegram_profile.user
-        login(request, user)  # Аутентификация пользователя
-        UserLogin.objects.create(user=user)  # Создание записи о входе ТОЛЬКО после успешного входа
-        return redirect('/')  # Перенаправление на главную страницу
+        login(request, user)
+        UserLogin.objects.create(user=user)
+        return redirect('/')
     except TelegramProfile.DoesNotExist:
         return HttpResponse('Неверный токен', status=400)
-

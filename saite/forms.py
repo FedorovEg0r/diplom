@@ -13,7 +13,7 @@ class ParserForm(forms.ModelForm):
         fields = ['city', 'keywords', 'excludes', 'groups']
         widgets = {
             'keywords': forms.HiddenInput(attrs={'id': 'id_keywords'}),
-            'excludes': forms.HiddenInput(attrs={'id': 'id_excludes'}),  # Добавьте это
+            'excludes': forms.HiddenInput(attrs={'id': 'id_excludes'}),
             'groups': forms.HiddenInput(attrs={'id': 'id_groups'}),
         }
 

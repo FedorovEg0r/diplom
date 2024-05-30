@@ -76,9 +76,15 @@
                 </div>
             </div>
         </div>
-        <div class="button-container">
-            <button class="configure-bot">Настроить бота</button>
-        </div>
+        {% if user.is_authenticated %}
+        <a class="button-container" href="{% url 'settings-page' %}">
+            <p class="configure-bot">Настроить бота</p>
+        </a>
+        {% else %}
+        <a class="button-container" href="https://t.me/EvHubBot">
+            <span class="configure-bot">Настроить бота</span>
+        </a>
+        {% endif %}
         <div id="loader" class="loader">
             <div class="loader-content">
                 <img src="{% static 'images/main/load.gif' %}" alt="Loading" />

@@ -43,8 +43,7 @@ function requestTick() {
 
 window.addEventListener('scroll', requestTick);
 document.addEventListener('DOMContentLoaded', onScroll);
-
-
+        
 document.addEventListener('DOMContentLoaded', function() {
     const addNewsBtn = document.getElementById('add-news-btn');
     const editorContainer = document.getElementById('editor-container');
@@ -55,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let editor;
     let editorVisible = false;
 
-    const newsUrl = saveNewsBtn.dataset.url; // Get the URL from the data attribute
+    const newsUrl = saveNewsBtn.dataset.url;
 
     addNewsBtn.addEventListener('click', function() {
         if (editorVisible) {
@@ -90,7 +89,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const title = newsTitle.value;
             const content = editor.getData();
 
-            // Show loader
             loader.style.visibility = 'visible';
 
             fetch(newsUrl, {
@@ -103,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => response.json())
             .then(data => {
-                loader.style.visibility = 'hidden'; // Hide loader
+                loader.style.visibility = 'hidden';
                 if (data.errors) {
                     console.error('Errors:', data.errors);
                 } else {
@@ -122,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     `;
 
-                    newsContainer.insertAdjacentHTML('afterbegin', newsHtml); // Add new news at the top
+                    newsContainer.insertAdjacentHTML('afterbegin', newsHtml);
                     editor.destroy()
                         .then(() => {
                             editorContainer.style.display = 'none';
@@ -135,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
             .catch(error => {
-                loader.style.visibility = 'hidden'; // Hide loader on error
+                loader.style.visibility = 'hidden';
                 console.error('Error:', error);
             });
         }
@@ -152,7 +150,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const newsItem = event.target.closest('.news-item');
             const newsId = newsItem.dataset.newsId;
 
-            // Show loader
             loader.style.visibility = 'visible';
 
             fetch(`/delete_news/${newsId}/`, {
@@ -162,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
             .then(response => {
-                loader.style.visibility = 'hidden'; // Hide loader
+                loader.style.visibility = 'hidden';
                 if (response.ok) {
                     newsItem.remove();
                 } else {
@@ -170,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
             .catch(error => {
-                loader.style.visibility = 'hidden'; // Hide loader on error
+                loader.style.visibility = 'hidden';
                 console.error('Error:', error);
             });
         } else if (event.target.classList.contains('cancel-delete-btn')) {
@@ -182,3 +179,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+
+

@@ -1,5 +1,4 @@
 
-
 from pathlib import Path
 import os
 
@@ -139,4 +138,4 @@ CKEDITOR_5_CONFIGS = {
 
 CKEDITOR_5_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
-CSRF_TRUSTED_ORIGINS=["https://c4b1-95-25-60-209.ngrok-free.app"]
+CSRF_TRUSTED_ORIGINS = ["https://554d-95-25-60-228.ngrok-free.app"]

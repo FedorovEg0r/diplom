@@ -87,16 +87,14 @@ def manage_keywords(request):
             custom_settings = request.POST.get('custom-settings-checkbox')
 
             logger.debug(
-                f"Received POST data: city={city}, keywords={keywords}, excludes={excludes}, groups={groups}, custom_settings={custom_settings}")
+                f"Received POST data: city={city}, keywords={keywords}, excludes={excludes}, groups={groups}, "
+                f"custom_settings={custom_settings}")
 
-            # Очистка города, если выбраны кастомные настройки
             if custom_settings:
                 city = None
 
-            # Удаление старых настроек парсера для данного пользователя
             ParserSetting.objects.filter(user=user).delete()
 
-            # Создание новой настройки парсера
             parser = ParserSetting.objects.create(
                 user=user,
                 city=city,
